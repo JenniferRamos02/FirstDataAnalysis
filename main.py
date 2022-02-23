@@ -51,13 +51,49 @@ def run():
     starters = {"Soup":3.0,"Tomato-Mozarella":15.0, "Oysters":20.0 }
     mains = {"Salad":9.0,"Spaghetti":20.0,"Steak":25.0,"Lobster":40.0}
     desserts = {"Ice cream":15.0, "Pie":10.0}
-    starters = pd.Series(starters)
-    mains = pd.Series(mains)
-    desserts = pd.Series(desserts)
-    #print(starters)
+    starters = pd.Series(starters).sort_values(ascending=True)
+    mains = pd.Series(mains).sort_values(ascending=True)
+    desserts = pd.Series(desserts).sort_values(ascending=True)
+    print(mains)
     #print(df_courses.loc[0,'FIRST_COURSE'])
     #print(starters[0])
     #df_courses.query('FIRST_COURSE >= starters[0]')
-    print (df_courses['FIRST_COURSE'] >= starters[0])
+    df_courses["DISH1"]= pd.Series()
+    #print (df_courses['FIRST_COURSE'] >= starters[0])
+    for i in df_courses.index :
+        if (df_courses['FIRST_COURSE'][i] >= starters[0]) & (df_courses['FIRST_COURSE'][i] < starters[1]):
+            df_courses['DISH1'][i] = starters[0]
+        elif (df_courses['FIRST_COURSE'][i] >= starters[1]) & (df_courses['FIRST_COURSE'][i] < starters[2]):
+            df_courses['DISH1'][i] = starters[1]
+        elif (df_courses['FIRST_COURSE'][i] >= starters[2]):
+            df_courses['DISH1'][i] = starters[2]
+        else:
+            df_courses['DISH1'][i] = 0.0
+
+    df_courses["DISH2"]= pd.Series()
+    #print (df_courses['FIRST_COURSE'] >= mains[0])
+    for i in df_courses.index :
+        if (df_courses['SECOND_COURSE'][i] >= mains[0]) & (df_courses['SECOND_COURSE'][i] < mains[1]):
+            df_courses['DISH2'][i] = mains[0]
+        elif (df_courses['SECOND_COURSE'][i] >= mains[1]) & (df_courses['SECOND_COURSE'][i] < mains[2]):
+            df_courses['DISH2'][i] = mains[1]
+        elif (df_courses['SECOND_COURSE'][i] >= mains[2]) & (df_courses['SECOND_COURSE'][i] < mains[3]):
+            df_courses['DISH2'][i] = mains[2]
+        elif (df_courses['SECOND_COURSE'][i] >= mains[3]):
+            df_courses['DISH2'][i] = mains[3]
+        else:
+            df_courses['DISH2'][i] = 0.0
+           
+    df_courses["DISH3"]= pd.Series()
+    #print (df_courses['THIRD_COURSE'] >= desserts[0])
+    for i in df_courses.index :
+        if (df_courses['THIRD_COURSE'][i] >= desserts[0]) & (df_courses['THIRD_COURSE'][i] < desserts[1]):
+            df_courses['DISH3'][i] = desserts[0]
+        elif (df_courses['THIRD_COURSE'][i] >= desserts[1]):
+            df_courses['DISH3'][i] = desserts[1]
+        else:
+            df_courses['DISH3'][i] = 0.0
+    df_courses.to_csv('Data/Actual_dishes.csv')      
+    #print(df_courses)
 if __name__ == '__main__':
     run()
