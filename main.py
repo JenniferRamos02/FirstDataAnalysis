@@ -2,98 +2,115 @@ from cgitb import reset
 from http import server
 from operator import index
 from os import access
+from re import S
+from this import s
+from matplotlib.image import BboxImage
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 import statistics
 
+dir_ClientCourses = 'Data/Client_courses.csv'
+df_courses=pd.read_csv(dir_ClientCourses)
+
 def run():
     #dir_ClienType = 'Data/Client_type.csv'
-    dir_ClientCourses = 'Data/Client_courses.csv'
+    
     #df_client=pd.read_csv(dir_ClienType)
     #df_client=df_client.set_index("CLIENT_ID")
-    df_courses=pd.read_csv(dir_ClientCourses)
+    
     #df_courses=df_courses.set_index("CLIENT_ID")
     #print(df_client)
     #print(df_courses)
 
-    """"""""""""""""""""""""""""""""""""""""""""""Parte 1 """""""""""""""""""""""""""""""""""""""""""""
-    """Punto 1"""
-    #df_courses["COST"]=df_courses["FIRST_COURSE"]+df_courses["SECOND_COURSE"]+df_courses["THIRD_COURSE"] 
-    #print(df_courses)
-    """mean = np.mean(df_courses["COST"])
-    print(mean)
-    dev = np.std(df_courses["COST"])
-    print(dev)
-    x_axis = np.sort(df_courses["COST"])
-    print(x_axis) 
+    """"""""""""""""""""""""""""""""""""""""""""""Part 1 """""""""""""""""""""""""""""""""""""""""""""
+    """Point 1"""
+    
+    cost=df_courses["FIRST_COURSE"]+df_courses["SECOND_COURSE"]+df_courses["THIRD_COURSE"]
+    mean = np.mean(cost)
+    #print(mean)
+    dev = np.std(cost)
+    #print(dev)
+    x_axis = np.sort(cost)
+    #print(x_axis) 
     normal = norm.pdf(x_axis, mean, dev)
-    plt.plot(x_axis, normal)
-    plt.show()"""
+    fig1=plt.figure()
+    plt.plot(x_axis, normal) 
+    plt.title("Cost Distribution")
+    plt.xlabel("Total Cost")
+    plt.ylabel("Normalized Cost")
+    plt.savefig("Data/CostDistribution.png")
+    plt.close(fig1)
 
-    """Punto 2"""
-    """axe_x = df_courses.columns[1:4]
-    #for i in df_courses.items(1):
+    """Point 2"""
+    
+    axe_x = df_courses.columns[2:5]
     y= [np.mean(df_courses["FIRST_COURSE"]), np.mean(df_courses["SECOND_COURSE"]),np.mean(df_courses["THIRD_COURSE"])]
-    print(axe_x)
-    print(y)
-    vmin = np.amin(df_courses["COST"])
-    vmax = np.amax(df_courses["COST"])
-    print(vmin) 
-    print(vmax) 
-    axe_y = np.arange(0, round(vmax), 10) 
-    print(axe_y)
+    #print(axe_x)
+    #print(y)
+    fig2=plt.figure()
     plt.bar(axe_x, y)
-    plt.show()"""
+    plt.title("Cost per Course")
+    plt.xlabel("Courses")
+    plt.ylabel("Cost")
+    plt.savefig("Data/CostperCourse.png")
+    plt.close(fig2)
 
-    """Punto 3"""
+    """Point 3"""
+
     starters = {"Soup":3.0,"Tomato-Mozarella":15.0, "Oysters":20.0 }
     mains = {"Salad":9.0,"Spaghetti":20.0,"Steak":25.0,"Lobster":40.0}
     desserts = {"Ice cream":15.0, "Pie":10.0}
     starters = pd.Series(starters).sort_values(ascending=True)
     mains = pd.Series(mains).sort_values(ascending=True)
     desserts = pd.Series(desserts).sort_values(ascending=True)
-    print(mains)
-    #print(df_courses.loc[0,'FIRST_COURSE'])
-    #print(starters[0])
-    #df_courses.query('FIRST_COURSE >= starters[0]')
-    df_courses["DISH1"]= pd.Series()
-    #print (df_courses['FIRST_COURSE'] >= starters[0])
+    #print(mains)
+    
+    dish1 = []
     for i in df_courses.index :
         if (df_courses['FIRST_COURSE'][i] >= starters[0]) & (df_courses['FIRST_COURSE'][i] < starters[1]):
-            df_courses['DISH1'][i] = starters[0]
+            dish1.append(starters[0])
         elif (df_courses['FIRST_COURSE'][i] >= starters[1]) & (df_courses['FIRST_COURSE'][i] < starters[2]):
-            df_courses['DISH1'][i] = starters[1]
+            dish1.append(starters[1])
         elif (df_courses['FIRST_COURSE'][i] >= starters[2]):
-            df_courses['DISH1'][i] = starters[2]
+            dish1.append(starters[2])
         else:
-            df_courses['DISH1'][i] = 0.0
+            dish1.append(0.0)
+    #print(dish1)
+    df_courses['DISH1']=np.array(dish1)
+    
 
-    df_courses["DISH2"]= pd.Series()
-    #print (df_courses['FIRST_COURSE'] >= mains[0])
+    dish2 = []
     for i in df_courses.index :
         if (df_courses['SECOND_COURSE'][i] >= mains[0]) & (df_courses['SECOND_COURSE'][i] < mains[1]):
-            df_courses['DISH2'][i] = mains[0]
+            dish2.append(mains[0])
         elif (df_courses['SECOND_COURSE'][i] >= mains[1]) & (df_courses['SECOND_COURSE'][i] < mains[2]):
-            df_courses['DISH2'][i] = mains[1]
+            dish2.append(mains[1])
         elif (df_courses['SECOND_COURSE'][i] >= mains[2]) & (df_courses['SECOND_COURSE'][i] < mains[3]):
-            df_courses['DISH2'][i] = mains[2]
+            dish2.append(mains[2])
         elif (df_courses['SECOND_COURSE'][i] >= mains[3]):
-            df_courses['DISH2'][i] = mains[3]
+            dish2.append(mains[3])
         else:
-            df_courses['DISH2'][i] = 0.0
-           
-    df_courses["DISH3"]= pd.Series()
-    #print (df_courses['THIRD_COURSE'] >= desserts[0])
+            dish2.append(0.0)
+    df_courses['DISH2']=np.array(dish2)
+    
+    dish3 = []       
     for i in df_courses.index :
         if (df_courses['THIRD_COURSE'][i] >= desserts[0]) & (df_courses['THIRD_COURSE'][i] < desserts[1]):
-            df_courses['DISH3'][i] = desserts[0]
+            dish3.append(desserts[0])
         elif (df_courses['THIRD_COURSE'][i] >= desserts[1]):
-            df_courses['DISH3'][i] = desserts[1]
+            dish3.append(desserts[1])
         else:
-            df_courses['DISH3'][i] = 0.0
-    df_courses.to_csv('Data/Actual_dishes.csv')      
-    #print(df_courses)
+            dish3.append(0.0)
+    df_courses['DISH3']=np.array(dish3)
+    
+    df_courses["DRINK1"] = df_courses["FIRST_COURSE"]-df_courses["DISH1"]
+    df_courses["DRINK2"] = df_courses["SECOND_COURSE"]-df_courses["DISH2"]
+    df_courses["DRINK3"] = df_courses["THIRD_COURSE"]-df_courses["DISH3"]
+
+    df_courses.to_csv('Data/Actual_dishes.csv')
+    print(df_courses)
+
 if __name__ == '__main__':
     run()
