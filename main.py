@@ -1,15 +1,8 @@
-from cgitb import reset
-from http import server
-from operator import index
-from os import access
-from re import S
-from this import s
-from matplotlib.image import BboxImage
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
-import statistics
+from sklearn.cluster import KMeans
 
 dir_ClientCourses = 'Data/Client_courses.csv'
 df_courses=pd.read_csv(dir_ClientCourses)
@@ -111,6 +104,30 @@ def run():
 
     df_courses.to_csv('Data/Actual_dishes.csv')
     print(df_courses)
+
+    """Part 2"""
+    features = df_courses.loc[:,["FIRST_COURSE","SECOND_COURSE","THIRD_COURSE"]]
+    #print(features)
+
+    fig3=plt.figure(figsize=(10,4))
+
+    plt.suptitle("K Means Clustering",fontsize=20)
+
+    plt.subplot(1,5,3)
+    plt.title("K = 4",fontsize=16)
+    kmeans = KMeans(n_clusters=4)
+    features["labels"] = kmeans.fit_predict(features)
+    plt.scatter(features.FIRST_COURSE[features.labels == 0],features.SECOND_COURSE[features.labels == 0],features.THIRD_COURSE[features.labels == 0])
+    plt.scatter(features.FIRST_COURSE[features.labels == 1],features.SECOND_COURSE[features.labels == 1],features.THIRD_COURSE[features.labels == 1])
+    plt.scatter(features.FIRST_COURSE[features.labels == 2],features.SECOND_COURSE[features.labels == 2],features.THIRD_COURSE[features.labels == 2])
+    plt.scatter(features.FIRST_COURSE[features.labels == 3],features.SECOND_COURSE[features.labels == 3],features.THIRD_COURSE[features.labels == 3])
+
+    # I drop labels since we only want to use features.
+    features.drop(["labels"],axis=1,inplace=True)
+
+    plt.subplots_adjust(top=0.8)
+    plt.savefig("Data/KMeansClustering.png")
+    plt.close(fig3)
 
 if __name__ == '__main__':
     run()
