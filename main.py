@@ -20,6 +20,7 @@ label = {
 starters = {"Soup":3.0,"Tomato-Mozarella":15.0, "Oysters":20.0 }
 mains = {"Salad":9.0,"Spaghetti":20.0,"Steak":25.0,"Lobster":40.0}
 desserts = {"Ice cream":15.0, "Pie":10.0}
+dish_type = [starters, mains, desserts]
 
 """Los convertimos en series"""
 starters = pd.Series(starters).sort_values(ascending=True)
@@ -54,6 +55,12 @@ def drink_distribution(df):
     plt.scatter(range(len(df.DRINK1)), df.DRINK3, c="g", label="Drink Dessert")
     plt.savefig("Data/Drink ditribution " + df.iloc[1,12] + " client.png") #lo guardamos en una imagen
     plt.close(fig)
+
+def name_dish(x, dishtype):
+    dic = dish_type[dishtype]
+    for key, value in dic.items():
+        if value == x:
+            return key 
 
 def run():
       
@@ -166,10 +173,10 @@ def run():
     features["labels"] = kmeans.fit_predict(features)
     print(features)
     """graficamos los resultados de la clasifficacion de datos"""
-    ax1.scatter(features.FIRST_COURSE[features.labels == 0],features.THIRD_COURSE[features.labels == 0],c="r")
-    ax1.scatter(features.FIRST_COURSE[features.labels == 1],features.THIRD_COURSE[features.labels == 1],c="g")
-    ax1.scatter(features.FIRST_COURSE[features.labels == 2],features.THIRD_COURSE[features.labels == 2],c="b")
-    ax1.scatter(features.FIRST_COURSE[features.labels == 3],features.THIRD_COURSE[features.labels == 3],c="y")
+    ax1.scatter(features.FIRST_COURSE[features.labels == 0],features.SECOND_COURSE[features.labels == 0], features.THIRD_COURSE[features.labels == 0],c="r")
+    ax1.scatter(features.FIRST_COURSE[features.labels == 1],features.SECOND_COURSE[features.labels == 1], features.THIRD_COURSE[features.labels == 1],c="g")
+    ax1.scatter(features.FIRST_COURSE[features.labels == 2],features.SECOND_COURSE[features.labels == 2], features.THIRD_COURSE[features.labels == 2],c="b")
+    ax1.scatter(features.FIRST_COURSE[features.labels == 3],features.SECOND_COURSE[features.labels == 3], features.THIRD_COURSE[features.labels == 3],c="y")
     
 
     plt.savefig("Data/KMeansClustering.png") #lo guardamos en una imagen
@@ -307,6 +314,49 @@ def run():
     drink_distribution(business)
     drink_distribution(retirement)
     drink_distribution(onetime)
+
+
+    """set simulation parameters"""
+    days = 365
+    years = 5
+    courses = 20
+    size = courses*days*years
+
+    """Create DataFrame"""
+
+    cluster = df
+
+    client_id = np.random.choice(cluster.CLIENT_ID)
+    time = np.random.choice(cluster.TIME, size=size)
+    customerType = np.random.choice(cluster.CLIENT_TYPE)
+    course_cost1 = np.random.choice(cluster.DISH1, size=size)
+    course_cost2 = np.random.choice(cluster.DISH2, size=size)
+    course_cost3 = np.random.choice(cluster.DISH3, size=size)
+    course1 = [name_dish(dish,0) for dish in course_cost1]
+    course2 = [name_dish(dish,1) for dish in course_cost2]
+    course3 = [name_dish(dish,2) for dish in course_cost3]
+    drink1 = np.random.choice(cluster.DRINK1, size=size)
+    drink2 = np.random.choice(cluster.DRINK2, size=size)
+    drink3 = np.random.choice(cluster.DRINK3, size=size)
+    total1 = np.array(course_cost1)+np.array(drink1)
+    total2 = np.array(course_cost2)+np.array(drink2)
+    total3 = np.array(course_cost3)+np.array(drink3)
+    df = pd.DataFrame({
+        'TIME': time, 
+        'CUSTOMERID': client_id, 
+        'CUSTOMERTYPE': customerType, 
+        'COURSE1': course1,
+        'COURSE2': course2,
+        'COURSE3': course3,
+        'DRINKS1': drink1,
+        'DRINKS2': drink2, 
+        'DRINKS3': drink3,
+        'TOTAL1': total1,
+        'TOTAL2': total2,
+        'TOTAL3': total3,
+    })
+
+    df.to_csv('Data/DataSimulation.csv')
 
 if __name__ == '__main__':
     run()
